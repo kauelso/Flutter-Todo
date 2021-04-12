@@ -98,7 +98,18 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: (){
               setState(() {
                 _activityList.remove(item);
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(item.nome + " removida"),
+                    action: SnackBarAction(
+                      label: 'Desfazer',
+                      onPressed: (){
+                        setState(() {
+                          _activityList.add(item);
+                        });
+                      },
+                    ),));
               });
+
             },
           ),
         ],
