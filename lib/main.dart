@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: EdgeInsets.all(16.0),
         itemBuilder: (context,i){
 
-          if(i < _activityList.length) return _activityListBuilder(_activityList[i]);
+          if(i < _activityList.length) return Card(child: _activityListBuilder(_activityList[i]),);
 
           return null;
 
