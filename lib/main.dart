@@ -154,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               children: [
                 TextFormField(
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: (InputDecoration(
                     labelText: "Nome da Tarefa",
                     icon: Icon(Icons.lightbulb_outline),
@@ -168,6 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 TextFormField(
                   keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
                   minLines: 1,
                   maxLines: 6,
                   decoration: (InputDecoration(
