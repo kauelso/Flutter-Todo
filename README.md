@@ -1,6 +1,6 @@
-# lista_de_atividades
+# lista de atividades
 
-Lista de atividades.
+Aplicativo para criar uma lista de atividades com flutter no android.
 
 ## Getting Started
 

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -61,11 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return ListView.builder(
         padding: EdgeInsets.all(16.0),
         itemBuilder: (context,i){
-          if(i.isOdd) return Divider();
 
-          final index = i~/2;
-
-          if(index < _activityList.length) return _activityListBuilder(_activityList[index]);
+          if(i < _activityList.length) return _activityListBuilder(_activityList[i]);
 
           return null;
 
@@ -78,15 +76,33 @@ class _MyHomePageState extends State<MyHomePage> {
     return ListTile(
       title: Text(item.nome),
       onTap: ()=>_showDetails(item),
-      trailing:  IconButton(
-       icon: Icon(
-          item.saved ? Icons.check_box : Icons.check_box_outline_blank,
-          color: item.saved ? Colors.green : Colors.grey,
-        ),
-        onPressed: (){
-         item.saved = true;
-        },
-      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              item.saved ? Icons.check_box : Icons.check_box_outline_blank,
+              color: item.saved ? Colors.green : Colors.grey,
+            ),
+            onPressed: (){
+              setState(() {
+                item.saved ? item.saved = false : item.saved = true;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.delete_forever,
+              color: Colors.red,
+            ),
+            onPressed: (){
+              setState(() {
+                _activityList.remove(item);
+              });
+            },
+          ),
+        ],
+      )
     );
   }
 
@@ -96,7 +112,16 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (BuildContext context){
             return Scaffold(
               appBar: AppBar(leading: BackButton(color: Colors.white,onPressed: () => Navigator.pop(context)),),
-              body: ,
+              body: ListView(
+                children: [
+                  ListTile(
+                    title: Text(item.nome, style: TextStyle(fontWeight: FontWeight.bold),),
+                  ),
+                  ListTile(
+                    title: Text(item.descricao, style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),),
+                  ),
+                ],
+              )
             );
           }
       )
