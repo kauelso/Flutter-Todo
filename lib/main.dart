@@ -1,5 +1,7 @@
-
+import 'activity.dart';
 import 'package:flutter/material.dart';
+import 'api.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,21 +30,22 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class Activity {
-  var nome;
-  var descricao;
-  var saved;
-
-  Activity(String nomeIn,String descricaoIn){
-    nome = nomeIn;
-    descricao = descricaoIn;
-    saved = false;
-  }
-
-}
-
 class _MyHomePageState extends State<MyHomePage> {
-  final _activityList = <Activity>[];
+  var _activityList = <Activity>[];
+
+  @override
+  void initState()  {
+    super.initState();
+    getToDo().then((value){
+      setState(() {
+        value.data.forEach((elem){
+          _activityList.add(Activity.fromJson(elem));
+        });
+      });
+    });
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,18 +62,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _listWidget(){
-    return ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemBuilder: (context,i){
-
-          if(i < _activityList.length) return Card(child: _activityListBuilder(_activityList[i]),);
-
-          return null;
-
-
-        },
+    return RefreshIndicator(
+        child: ListView.builder(
+          padding: EdgeInsets.all(16.0),
+          itemBuilder: (context,i){
+            if (_activityList != null){
+              if(i < _activityList.length)
+                return Card(child: _activityListBuilder(_activityList[i]),);
+            }
+            return null;
+          },
+        ),
+        onRefresh: _refresh,
     );
   }
+
+  Future<void> _refresh () async {
+    var response = await getToDo();
+    _activityList = [];
+    setState(() {
+    response.data.forEach((elem){
+       _activityList.add(Activity.fromJson(elem));
+     });
+  });
+}
 
   Widget _activityListBuilder(Activity item){
     return ListTile(
@@ -97,14 +112,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onPressed: (){
               setState(() {
-                _activityList.remove(item);
+                deleteActivity(item.id);
+                _refresh();
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(item.nome + " removida"),
                     action: SnackBarAction(
                       label: 'Desfazer',
                       onPressed: (){
+                        _refresh();
                         setState(() {
-                          _activityList.add(item);
+                          postActivity(item.nome,item.descricao);
                         });
                       },
                     ),));
@@ -185,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: (){
                       if(_formKey.currentState.validate()){
                         _formKey.currentState.save();
-                        _activityList.add(new Activity(_activityName, _activityDescription));
+                        postActivity(_activityName,_activityDescription);
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text(_activityName + " adicionada")));
                         Navigator.pop(context);
