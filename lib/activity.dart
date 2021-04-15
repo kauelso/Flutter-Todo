@@ -4,14 +4,21 @@ class Activity {
   var saved;
   var id;
 
-  Activity(String nomeIn,String descricaoIn,String idIn){
+  Activity(String nomeIn,String descricaoIn){
     nome = nomeIn;
     descricao = descricaoIn;
     saved = false;
-    id = idIn;
   }
 
-  factory Activity.fromJson(Map<String,dynamic> json) => Activity(json["title"], json['description'], json['id']);
+  void setId(String idIn){
+    this.id = idIn;
+  }
+
+  factory Activity.fromJson(Map<String,dynamic> json) {
+    var item = Activity(json["title"], json['description']);
+    item.setId(json['id']);
+    return item;
+  }
 
   Map<String,dynamic> toJson() => {
     "title": nome,

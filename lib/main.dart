@@ -48,17 +48,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addActivityWindow,
-        tooltip: 'New Activity',
-        child: Icon(Icons.add),
-      ),
-      body: _listWidget(),
-    );
+    return FutureBuilder(
+      future: _refresh(),
+        builder: (context,snapshot){
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(widget.title),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: _addActivityWindow,
+              tooltip: 'New Activity',
+              child: Icon(Icons.add),
+            ),
+            body: _listWidget(),
+          );
+        });
   }
 
   Widget _listWidget(){
@@ -113,13 +117,11 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: (){
               setState(() {
                 deleteActivity(item.id);
-                _refresh();
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(item.nome + " removida"),
                     action: SnackBarAction(
                       label: 'Desfazer',
                       onPressed: (){
-                        _refresh();
                         setState(() {
                           postActivity(item.nome,item.descricao);
                         });
@@ -139,7 +141,15 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(
           builder: (BuildContext context){
             return Scaffold(
-              appBar: AppBar(leading: BackButton(color: Colors.white,onPressed: () => Navigator.pop(context)),),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.article),
+                onPressed: ()=> _editActivityWindow(item),
+                tooltip: 'Edit Activity',
+              ),
+              appBar: AppBar(
+                leading:
+                    BackButton(color: Colors.white,onPressed: () => Navigator.pop(context)),
+              ),
               body: ListView(
                 children: [
                   ListTile(
@@ -154,6 +164,65 @@ class _MyHomePageState extends State<MyHomePage> {
           }
       )
 
+    );
+  }
+
+  void _editActivityWindow(Activity item){
+    final _formKey = GlobalKey<FormState>();
+    var _activityName = item.nome;
+    var _activityDescription = item.descricao;
+    Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (BuildContext context){
+              return Scaffold(
+                  appBar: AppBar(title: Text("Nova Atividade",)),
+                  body: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: (InputDecoration(
+                            hintText: item.nome,
+                            labelText: "Nome da Tarefa",
+                            icon: Icon(Icons.lightbulb_outline),
+                          )
+                          ),
+                          onSaved: (String value){
+                            if(value.isEmpty == false) _activityName = value;
+                          },
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.multiline,
+                          textCapitalization: TextCapitalization.sentences,
+                          minLines: 1,
+                          maxLines: 6,
+                          decoration: (InputDecoration(
+                            hintText: item.descricao,
+                            labelText: "Descrição da Tarefa",
+                            icon: Icon(Icons.list_alt),
+                          )
+                          ),
+                          onSaved: (String value){
+                            if(value.isEmpty == false) _activityDescription = value;
+                          },
+                        ),
+                        ElevatedButton(
+                            onPressed: (){
+                              if(_formKey.currentState.validate()){
+                                _formKey.currentState.save();
+                                editActivity(item.id,_activityName,_activityDescription);
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(content: Text("Edição concluída")));
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: Text("Editar atividade"))
+                      ],
+                    ),
+                  )
+              );
+            })
     );
   }
 

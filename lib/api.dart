@@ -36,3 +36,13 @@ void deleteActivity(String id){
     return null;
   }
 }
+
+void editActivity(String id, String title, String desc){
+  try{
+    var response = Dio().put('https://8zc8b4woh8.execute-api.us-east-2.amazonaws.com/staging/todo',data: {'title':title,'description':desc,'id':id});
+  }
+  catch (e){
+    print(e);
+    return null;
+  }
+}
